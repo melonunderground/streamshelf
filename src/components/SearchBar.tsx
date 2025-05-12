@@ -1,38 +1,37 @@
-// "use client"
+import React from "react";
 
-// import { useState } from "react"
+interface SearchBarProps {
+  title: string;
+  setTitle: (value: string) => void;
+  onSearch: (query: string) => void;
+}
 
-// interface SearchBarProps {
-//   onSearch: (query: string) => void
-// }
+const SearchBar: React.FC<SearchBarProps> = ({ title, setTitle, onSearch }) => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSearch(title);
+  };
 
-// const SearchBar = ({ onSearch }: SearchBarProps) => {
-//   const [query, setQuery] = useState("")
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col items-center space-y-2"
+    >
+      <input
+        type="text"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        placeholder="Enter show or movie..."
+        className="border border-gray-300 rounded px-4 py-2 w-64"
+      />
+      <button
+        type="submit"
+        className="bg-blue-600 hover:bg-blue-700 !text-white font-semibold px-4 py-2 rounded shadow transition duration-200"
+      >
+        Search
+      </button>
+    </form>
+  );
+};
 
-//   const handleSubmit = (e: React.FormEvent) => {
-//     e.preventDefault()
-//     if (query.trim()) {
-//       onSearch(query)
-//     }
-//   }
-
-//   return (
-//     <form onSubmit={handleSubmit} className="flex justify-center gap-4">
-//       <input
-//         type="text"
-//         placeholder="Search movies or shows..."
-//         value={query}
-//         onChange={(e) => setQuery(e.target.value)}
-//         className="w-full md:w-1/2 p-2 border rounded shadow-sm"
-//       />
-//       <button
-//         type="submit"
-//         className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-//       >
-//         Search
-//       </button>
-//     </form>
-//   )
-// }
-
-// export default SearchBar
+export default SearchBar;

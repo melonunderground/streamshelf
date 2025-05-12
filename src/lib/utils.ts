@@ -5,25 +5,23 @@ type StreamingSource = {
   }
   
   export function groupAndSortStreamingSources(
-    streamingData: StreamingSource[] | null | undefined
+    streamingData: StreamingSource[] | null | undefined,
+    selectedTypes: string[]
   ): Record<number, StreamingSource[]> {
-    if (!Array.isArray(streamingData)) return {}
+    if (!Array.isArray(streamingData)) return {};
   
-    const typeOrder = ['sub', 'free', 'purchase', 'tve']
+    const grouped: Record<number, StreamingSource[]> = {};
   
-    const grouped = streamingData.reduce((acc, item) => {
-      const key = item.source_id
-      if (!acc[key]) acc[key] = []
-      acc[key].push(item)
-      return acc
-    }, {} as Record<number, StreamingSource[]>)
+    for (const entry of streamingData) {
+      if (entry.region !== "US") continue;
+      if (!selectedTypes.includes(entry.type)) continue;
   
-    for (const key in grouped) {
-      grouped[key] = grouped[key].sort(
-        (a, b) => typeOrder.indexOf(a.type) - typeOrder.indexOf(b.type)
-      )
+      if (!grouped[entry.source_id]) {
+        grouped[entry.source_id] = [];
+      }
+      grouped[entry.source_id].push(entry);
     }
   
-    return grouped
+    return grouped;
   }
   

@@ -2,20 +2,14 @@
 import StepWizard from "@/components/StepWizard";
 import streamingShelfIcon from "../assets/bookshelfWithDisney.png";
 import Image from "next/image";
-import { accessTypes, sources } from "../lib/types";
 
 export default function HomePage() {
   return (
-    <main className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6 text-center">
-        <Image
-          src={streamingShelfIcon}
-          style={{ height: 300, width: 200 }}
-          alt="Streaming Shelf Icon"
-          priority={true}
-        />
+    <main className="min-h-screen bg-fuchsia-100 container mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-0">
+        <Image src={streamingShelfIcon} height={250} alt="Streaming Shelf Icon" priority className="block mx-auto" />
       </h1>
-      <StepWizard accessTypes={accessTypes} sources={sources} />
+      <StepWizard />
     </main>
   );
 }

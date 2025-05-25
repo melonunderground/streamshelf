@@ -73,7 +73,6 @@ export async function fetchWatchmodeTitleSources(titleId: number, selectedSource
   try {
     const response = await fetch(sourcesUrl);
     const data = await response.json();
-    console.log(data);
   
     if (!data || data.length === 0) {
       console.error("No results found for the search term.");

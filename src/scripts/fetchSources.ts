@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import axios from "axios";
 import dotenv from "dotenv";
+import { Source } from "@/lib/types";
 
 // Load .env from the project root (2 levels up from src/scripts)
 dotenv.config({ path: path.resolve(__dirname, "../../.env.local") });
@@ -13,9 +14,9 @@ if (!apiKey) {
   process.exit(1);
 }
 
-const fetchSources = async () => {
+const fetchSources = async (): Promise<void> => {
   try {
-    const { data } = await axios.get("https://api.watchmode.com/v1/sources/", {
+    const { data } = await axios.get<Source[]>("https://api.watchmode.com/v1/sources/", {
       params: {
         apiKey,
       },
@@ -25,9 +26,14 @@ const fetchSources = async () => {
     fs.mkdirSync(path.dirname(outputPath), { recursive: true });
     fs.writeFileSync(outputPath, JSON.stringify(data, null, 2));
 
-    console.log(`Saved ${data.length} sources to ${outputPath}`);
-  } catch (err: any) {
-    console.error("Failed to fetch Watchmode sources:", err.response?.data || err.message);
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error("Watchmode API error:", error.response?.data);
+    } else if (error instanceof Error) {
+      console.error("Unexpected error:", error.message);
+    } else {
+      console.error("Unknown throwL:", error)
+    }
   }
 };
 

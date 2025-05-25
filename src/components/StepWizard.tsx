@@ -2,12 +2,14 @@
 
 import React from "react";
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import sources from "../../data/watchmodeSources.json";
+import Poster from "./Poster";
 import { fetchWatchmodeAutocomplete, fetchOmdbTitle, fetchWatchmodeTitleResults, fetchWatchmodeTitleSources } from "@/lib/api";
 import { TitleData, TitleAutocomplete, TitleResult, Source, accessChoices, AccessLabel } from "../lib/types";
 import subscribedControllerImage from "../assets/subscribedOptions.png";
 import subscribedPlusPayImage from "../assets/allOptions.png";
-import missingImage from "../assets/imageNotAvailable.png";
+import missingImage from "../assets/noImage.png";
 import debounce from "lodash/debounce";
 
 const StepWizard = () => {
@@ -112,8 +114,18 @@ const StepWizard = () => {
       if (!titles?.length) throw new Error("No titles found");
       setOmdbData(omdb);
       setWatchmodeTitleData(titles);
-    } catch (e: any) {
-      setFetchError(e.message);
+    } catch (error: unknown) {
+      let message: string;
+
+      if (typeof error === "string") {
+        message = error;
+      } else if (error instanceof Error) {
+        message = error.message;
+      } else {
+        message = "An unexpected error occurred";
+      }
+
+      setFetchError(message);
     } finally {
       setLoading(false);
     }
@@ -224,24 +236,35 @@ const StepWizard = () => {
       {step === 1 && (
         <div className="flex flex-col justify-between">
           <h2 className="text-xl font-semibold mb-6 text-[#2B1A82]">Choose Your Search Scope</h2>
-          <div className="flex justify-center space-x-8">
+          <div className="flex justify-center items-center space-x-8 h-56">
             {(
               [
                 { label: "Included", icon: subscribedControllerImage, tooltip: "Show me only what I subscribe to" },
                 { label: "All", icon: subscribedPlusPayImage, tooltip: "Show me everything, including pay-per-view" },
               ] as const
-            ).map(({ label, icon, tooltip }) => (
-              <button
-                key={label}
-                type="button"
-                onClick={() => handleAccessLabelClick(label)}
-                title={tooltip}
-                className={`cursor-pointer p-2 rounded-lg border transition 
-               ${selectedAccessLabels.includes(label) ? "border-4 border-blue-600 bg-blue-50 shadow-lg ring-2 ring-blue-400" : "border border-gray-300 hover:border-gray-800"}`}
-              >
-                <img src={icon.src} alt={label} className="w-50 h-50" />
-              </button>
-            ))}
+            ).map(({ label, icon, tooltip }) => {
+              const isActive = selectedAccessLabels.includes(label);
+              return (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => handleAccessLabelClick(label)}
+                  title={tooltip}
+                  className={`
+          cursor-pointer
+          flex-shrink-0
+          h-full
+          p-2
+          rounded-lg
+          border
+          transition
+          ${isActive ? "border-4 border-blue-600 bg-blue-50 shadow-lg ring-2 ring-blue-400" : "border border-gray-300 hover:border-gray-800"}
+        `}
+                >
+                  <Image src={icon.src} alt={label} width={200} height={200} className="object-contain h-full w-auto" unoptimized />
+                </button>
+              );
+            })}
           </div>
           <button onClick={() => setStep(2)} className="cursor-pointer w-48 mx-auto mt-8 py-2 px-4 bg-[#4F67FF] text-white rounded-lg hover:bg-[#7E69FF] transition-colors">
             Next
@@ -282,8 +305,8 @@ const StepWizard = () => {
               `}
                   >
                     <input type="checkbox" className="sr-only" checked={isChecked} onChange={() => handleSourceSelect(src.id)} />
-                    <div className="w-14 h-14 flex-shrink-0 mb-1">
-                      <img src={src.logo_100px} alt={src.name} className="w-full h-full object-contain" />
+                    <div className="relative w-14 h-14 flex-shrink-0 mb-1">
+                      <Image src={src.logo_100px} alt={src.name} className="object-contain" unoptimized priority fill />
                     </div>
                     <span className="mt-auto text-xs font-semibold text-[#2B1A82] text-center truncate w-full" title={src.name}>
                       {src.name}
@@ -337,15 +360,8 @@ const StepWizard = () => {
           </div>
           {omdbData && (
             <div className="mb-6 bg-white rounded-xl shadow-md border border-[#7E69FF] p-6 flex gap-6">
-              <img
-                src={omdbData.Poster}
-                alt={omdbData.Title}
-                className="w-32 flex-shrink-0 rounded-lg shadow-sm border border-[#E1E3FF]"
-                onError={(e) => {
-                  e.currentTarget.onerror = null;
-                  e.currentTarget.src = missingImage.src;
-                }}
-              />
+              <Poster posterUrl={omdbData.Poster} title={omdbData.Title} missingImage={missingImage} />
+
               <div>
                 <h1 className="text-2xl font-bold mb-2 text-[#2B1A82]">
                   {omdbData.Title} <span className="text-[#7E69FF]">({omdbData.Year})</span>

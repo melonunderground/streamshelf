@@ -5,6 +5,17 @@ export const accessChoices: Record<AccessLabel, string[]> = {
   All: ['buy', 'rent'],
 }
 
+export const steps = [
+  [1, "Access"],
+  [2, "Services"],
+  [3, "Search"],
+] as const;
+
+export type StepTuple = typeof steps[number];
+export type StepKey = StepTuple[0];
+export type StepValue = StepTuple[1];
+
+
 interface Rating {
   Source: string;
   Value: string;

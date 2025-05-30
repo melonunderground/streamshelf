@@ -24,7 +24,13 @@ export async function GET(request: Request) {
         },
       }
     )
-    return NextResponse.json(data.results || [])
+    // Cache data 7 days, stale 1 hour on revalidate.
+    return NextResponse.json(data.results || [], {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'public, s-maxage=604800, stale-while-revalidate=3600',
+      },
+    })
   } catch (err) {
     console.error('Watchmode autocomplete error', err)
     return NextResponse.json([], { status: 502 })

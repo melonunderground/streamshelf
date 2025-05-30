@@ -18,7 +18,13 @@ export async function GET(request: Request) {
       params: { apikey: apiKey, t: title },
     })
     if (data.Response === 'True') {
-      return NextResponse.json(data)
+      // Cache data 7 days, stale 1 hour on revalidate.
+      return NextResponse.json(data, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'public, s-maxage=604800, stale-while-revalidate=3600',
+        },
+      })
     }
     return NextResponse.json(null, { status: 404 })
   } catch (err) {

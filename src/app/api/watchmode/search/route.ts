@@ -21,7 +21,13 @@ export async function GET(request: Request) {
         search_value: title,
       },
     })
-    return NextResponse.json(data.title_results || [])
+    // Cache data 7 days, stale 1 hour on revalidate.
+    return NextResponse.json(data.title_results || [], {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'public, s-maxage=604800, stale-while-revalidate=3600', // 7 days cache, 1 hour revalidation
+      },
+    })
   } catch (err) {
     console.error('Watchmode title search error', err)
     return NextResponse.json([], { status: 502 })

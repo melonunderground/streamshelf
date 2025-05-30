@@ -2,16 +2,17 @@
   "name": "stream-shelf",
   "version": "0.1.0",
   "private": true,
+
   "scripts": {
-    "prebuild": "tsx src/scripts/fetchSources.ts",
-    "dev": "next dev",
+    "fetch-sources": "tsx src/scripts/fetchSources.ts",
+    "prebuild": "npm run fetch-sources",
     "build": "next build",
+    "dev": "next dev",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
     "axios": "^1.8.4",
-    "dotenv": "^16.5.0",
     "fuse.js": "^7.1.0",
     "jsdom": "^26.1.0",
     "lodash": "^4.17.21",
@@ -28,6 +29,8 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.21",
+    "dotenv": "^16.5.0",
+    "dotenv-cli": "^8.0.0",
     "eslint": "^9",
     "eslint-config-next": "15.3.0",
     "postcss": "^8.5.3",

@@ -37,8 +37,13 @@ export async function GET(
       .filter((s) => s.region === 'US')
       .filter((s) => selectedAccessTypes.includes(s.type))
       .filter((s) => selectedSources.includes(s.source_id))
-
-    return NextResponse.json(filtered)
+    // Cache data 7 days, stale 1 hour on revalidate.
+    return NextResponse.json(filtered, {
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "public, s-maxage=604800, stale-while-revalidate=3600",
+      },
+    })
   } catch (err) {
     console.error('Watchmode title sources error', err)
     return NextResponse.json([], { status: 502 })

@@ -1,7 +1,7 @@
 import React from "react";
 import subscribedControllerImage from "../assets/subscribedOptions.png";
 import subscribedPlusPayImage from "../assets/allOptions.png";
-import { accessChoices, AccessLabel, StepKey } from "../lib/types";
+import { AccessLabel, StepKey } from "../lib/types";
 import Image from "next/image";
 
 interface Props {

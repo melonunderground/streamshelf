@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { StepKey, TitleAutocomplete } from "../lib/types";
 import { DebouncedFunc } from "lodash";
 
@@ -22,25 +22,21 @@ interface Props {
 const SearchInput = ({ handleSearch, handleAutocompleteTitleSelect, setAutocompleteResults, setSearchTerm, setSourcesError, setSearchTermError, loading, debouncedSearch, autocompleteResults, selectedSources, searchTerm, sourcesError, searchTermError, step }: Props) => {
   const autocompleteRef = useRef<HTMLDivElement>(null);
 
-  // Checks if step 2 selection is complete from step 3 and throws error.
-  const validateStep3 = () => {
+  // Call validation if step 3 && no sources selected.
+  useEffect(() => {
     if (step === 3) {
       if (selectedSources.length === 0) {
         setSourcesError("Select at least one service.");
       }
     }
-  };
-
-  // Call validation if step 3 && no sources selected.
-  useEffect(() => {
-    validateStep3();
-  }, [step, selectedSources]);
+  }, [step, selectedSources, setSourcesError]);
 
   // Track clicks in step 3 outside div containing search input, find availability button and dropdown results.
   useEffect(() => {
     if (step !== 3) {
       return;
     }
+
     const handleClickOutside = (e: MouseEvent) => {
       if (autocompleteResults.length > 0 && autocompleteRef.current && !autocompleteRef.current.contains(e.target as Node)) {
         setAutocompleteResults([]);
@@ -48,7 +44,7 @@ const SearchInput = ({ handleSearch, handleAutocompleteTitleSelect, setAutocompl
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [step, autocompleteResults]);
+  }, [step, autocompleteResults, setAutocompleteResults]);
 
   // Set search term as user types and trigger debounce for recommended search terms.
   const handleSearchTermChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -1,21 +1,3 @@
-export type AccessLabel = 'Included' | 'All'
-
-export const accessChoices: Record<AccessLabel, string[]> = {
-  Included: ['sub', 'free', 'tve'],
-  All: ['buy', 'rent'],
-}
-
-export const steps = [
-  [1, "Access"],
-  [2, "Services"],
-  [3, "Search"],
-] as const;
-
-export type StepTuple = typeof steps[number];
-export type StepKey = StepTuple[0];
-export type StepValue = StepTuple[1];
-
-
 interface Rating {
   Source: string;
   Value: string;
@@ -44,7 +26,7 @@ export interface TitleData {
   Type: string;
   totalSeasons: string;
   Response: string;
-}
+};
 
 export interface TitleResult {
   id: number;
@@ -55,7 +37,7 @@ export interface TitleResult {
   tmdb_type: string;
   type: string;
   year: number;
-}
+};
 
 export interface TitleAutocomplete {
   name: string;
@@ -67,7 +49,7 @@ export interface TitleAutocomplete {
   tmdb_id: number;
   tmdb_type: string;
   image_url: string;
-}
+};
 
 export interface Source {
   android_url: string;
@@ -81,6 +63,23 @@ export interface Source {
   source_id: number;
   type: string;
   web_url: string;
-}
+};
+
+export type AccessLabel = 'Included' | 'All';
+
+export const accessChoices: Record<AccessLabel, string[]> = {
+  Included: ['sub', 'free', 'tve'],
+  All: ['buy', 'rent'],
+};
+
+export const steps = [
+  [1, "Access"],
+  [2, "Services"],
+  [3, "Search"],
+] as const;
+
+export type StepTuple = typeof steps[number];
+export type StepKey = StepTuple[0];
+export type StepValue = StepTuple[1];
 
 

@@ -1,7 +1,9 @@
+"use client";
+
 import React from "react";
-import subscribedControllerImage from "../assets/subscribedOptions.png";
-import subscribedPlusPayImage from "../assets/allOptions.png";
-import { AccessLabel, StepKey } from "../lib/types";
+import subscribedControllerImage from "../../../assets/subscribedOptions.png";
+import subscribedPlusPayImage from "../../../assets/allOptions.png";
+import { AccessLabel, StepKey } from "../../../lib/types";
 import Image from "next/image";
 
 interface Props {

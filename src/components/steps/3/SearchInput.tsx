@@ -1,17 +1,19 @@
-import React, { useEffect, useRef } from "react";
-import { StepKey, TitleAutocomplete } from "../lib/types";
+"use client";
+
+import React, { useEffect, useRef, useCallback, useMemo } from "react";
+import { StepKey, TitleAutocomplete } from "../../../lib/types";
 import { DebouncedFunc } from "lodash";
 
 interface Props {
   handleSearch: () => Promise<void>;
   handleAutocompleteTitleSelect: (title: string) => void;
-  setAutocompleteResults: (value: React.SetStateAction<TitleAutocomplete[]>) => void;
+  setAutocompleteResults: React.Dispatch<React.SetStateAction<TitleAutocomplete[]>>;
   setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
   setSourcesError: React.Dispatch<React.SetStateAction<string | null>>;
   setSearchTermError: React.Dispatch<React.SetStateAction<string | null>>;
-  loading: boolean;
+  searchLoading: boolean;
   debouncedSearch: DebouncedFunc<(value: string) => Promise<void>>;
-  autocompleteResults: { id: number; name: string; year: number }[];
+  autocompleteResults: TitleAutocomplete[];
   selectedSources: number[];
   searchTerm: string;
   sourcesError: string | null;
@@ -19,17 +21,22 @@ interface Props {
   step: StepKey;
 }
 
-const SearchInput = ({ handleSearch, handleAutocompleteTitleSelect, setAutocompleteResults, setSearchTerm, setSourcesError, setSearchTermError, loading, debouncedSearch, autocompleteResults, selectedSources, searchTerm, sourcesError, searchTermError, step }: Props) => {
+const SearchInput = ({ handleSearch, handleAutocompleteTitleSelect, setAutocompleteResults, setSearchTerm, setSourcesError, setSearchTermError, searchLoading, debouncedSearch, autocompleteResults, selectedSources, searchTerm, sourcesError, searchTermError, step }: Props) => {
   const autocompleteRef = useRef<HTMLDivElement>(null);
 
   // Call validation if step 3 && no sources selected.
   useEffect(() => {
-    if (step === 3) {
-      if (selectedSources.length === 0) {
-        setSourcesError("Select at least one service.");
-      }
+    if (step === 3 && selectedSources.length === 0) {
+      setSourcesError("Select at least one service.");
     }
   }, [step, selectedSources, setSourcesError]);
+
+  // Cleanup on unmount SearchInput
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [debouncedSearch]);
 
   // Track clicks in step 3 outside div containing search input, find availability button and dropdown results.
   useEffect(() => {
@@ -47,27 +54,35 @@ const SearchInput = ({ handleSearch, handleAutocompleteTitleSelect, setAutocompl
   }, [step, autocompleteResults, setAutocompleteResults]);
 
   // Set search term as user types and trigger debounce for recommended search terms.
-  const handleSearchTermChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchTerm(value);
-    debouncedSearch(value);
+  const handleSearchTermChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      setSearchTerm(value);
+      debouncedSearch(value);
 
-    if (value.trim().length === 0 || !/[a-zA-Z]/.test(value)) {
-      setSearchTermError("Enter a valid search term (at least one letter).");
-    } else {
-      setSearchTermError(null);
-    }
-  };
-
-  const searchDropdown = autocompleteResults.length > 0 && (
-    <ul className="absolute left-0 right-0 z-10 mt-1 bg-white border border-gray-300 rounded shadow max-h-60 overflow-y-auto">
-      {autocompleteResults.map((r) => (
-        <li key={r.id} onClick={() => handleAutocompleteTitleSelect(r.name)} className="cursor-pointer hover:bg-gray-100 p-2">
-          {r.name} <span className="text-gray-500">({r.year})</span>
-        </li>
-      ))}
-    </ul>
+      if (value.trim().length === 0 || !/[a-zA-Z]/.test(value)) {
+        setSearchTermError("Enter a valid search term (at least one letter).");
+      } else {
+        setSearchTermError(null);
+      }
+    },
+    [setSearchTerm, debouncedSearch, setSearchTermError]
   );
+
+  const searchDropdown = useMemo(() => {
+    if (autocompleteResults.length === 0) return null;
+
+    return (
+      <ul className="absolute left-0 right-0 z-10 mt-1 bg-white border border-gray-300 rounded shadow max-h-60 overflow-y-auto">
+        {autocompleteResults.map((r) => (
+          <li key={r.id} onClick={() => handleAutocompleteTitleSelect(r.name)} className="cursor-pointer hover:bg-gray-100 p-2">
+            {r.name} <span className="text-gray-500">({r.year})</span>
+          </li>
+        ))}
+      </ul>
+    );
+  }, [autocompleteResults, handleAutocompleteTitleSelect]);
+
   return (
     <div className="mb-6">
       <h2 className="text-xl font-semibold mb-4 text-[#2B1A82]">Enter Show or Movie Title</h2>
@@ -83,7 +98,7 @@ const SearchInput = ({ handleSearch, handleAutocompleteTitleSelect, setAutocompl
             onChange={handleSearchTermChange}
           />
 
-          <button onClick={handleSearch} disabled={loading || selectedSources.length === 0} className="cursor-pointer px-4 py-2 bg-[#4F67FF] text-white rounded-lg hover:bg-[#7E69FF] disabled:opacity-50 transition-colors">
+          <button onClick={handleSearch} disabled={searchLoading || selectedSources.length === 0} className="cursor-pointer px-4 py-2 bg-[#4F67FF] text-white rounded-lg hover:bg-[#7E69FF] disabled:opacity-50 transition-colors">
             Find Availability
           </button>
         </div>
@@ -95,4 +110,4 @@ const SearchInput = ({ handleSearch, handleAutocompleteTitleSelect, setAutocompl
   );
 };
 
-export default SearchInput;
+export default React.memo(SearchInput);

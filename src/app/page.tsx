@@ -1,5 +1,5 @@
 // src/app/page.tsx
-import StepWizard from "@/components/StepWizard";
+import StepWrapper from "@/components/StepWrapper";
 import streamingShelfIcon from "../assets/bookshelfWithDisney.png";
 import Image from "next/image";
 
@@ -9,7 +9,7 @@ export default function HomePage() {
       <h1 className="text-3xl font-bold mb-0">
         <Image src={streamingShelfIcon} height={250} alt="Streaming Shelf Icon" priority className="block mx-auto" />
       </h1>
-      <StepWizard />
+      <StepWrapper />
     </main>
   );
 }

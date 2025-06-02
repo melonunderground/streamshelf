@@ -1,6 +1,8 @@
-import React from "react";
+"use client";
+
+import React, { useMemo, useCallback } from "react";
 import Image from "next/image";
-import sources from "../../data/watchmodeSources.json";
+import sources from "../../../../data/watchmodeSources.json";
 import { StepKey } from "@/lib/types";
 
 interface Props {
@@ -12,40 +14,23 @@ interface Props {
 }
 
 const ServicesSelector = ({ selectedSources, setSelectedSources, sourcesError, setSourcesError, setStep }: Props) => {
-  const streamingServices = sources.map((src) => {
-    const isChecked = selectedSources.includes(src.id);
-    return (
-      <label
-        key={src.id}
-        className={`relative flex flex-col items-center w-20 h-24 p-2 border rounded-lg cursor-pointer transition-colors
-                             ${isChecked ? "border-[#4F67FF] ring-2 ring-[#D8DAFE] bg-[#F0F2FF]" : "border-[#E1E3FF] bg-white hover:bg-[#F0F2FF]"}
-                             `}
-      >
-        <input type="checkbox" className="sr-only" checked={isChecked} onChange={() => handleSourceSelect(src.id)} />
-        <div className="relative w-14 h-14 flex-shrink-0 mb-1">
-          <Image src={src.logo_100px} alt={src.name} className="object-contain" unoptimized priority fill />
-        </div>
-        <span className="mt-auto text-xs font-semibold text-[#2B1A82] text-center truncate w-full" title={src.name}>
-          {src.name}
-        </span>
-      </label>
-    );
-  });
-
   // Toggle clicked source to add or remove from selectedSources array.
-  const handleSourceSelect = (sourceId: number) => {
-    const updatedSources = selectedSources.includes(sourceId) ? selectedSources.filter((s) => s !== sourceId) : [...selectedSources, sourceId];
+  const handleSourceSelect = useCallback(
+    (sourceId: number) => {
+      const updatedSources = selectedSources.includes(sourceId) ? selectedSources.filter((s) => s !== sourceId) : [...selectedSources, sourceId];
 
-    if (updatedSources.length === 0) {
-      setSourcesError("Select at least one service.");
-    } else {
-      setSourcesError(null);
-    }
-    setSelectedSources(updatedSources);
-  };
+      if (updatedSources.length === 0) {
+        setSourcesError("Select at least one service.");
+      } else {
+        setSourcesError(null);
+      }
+      setSelectedSources(updatedSources);
+    },
+    [selectedSources, setSourcesError, setSelectedSources]
+  );
 
   // Add or remove all sourceIds to selectedSources array.
-  const handleSelectAllToggle = () => {
+  const handleSelectAllToggle = useCallback(() => {
     if (selectedSources.length === sources.length) {
       setSelectedSources([]);
       setSourcesError("Select at least one service.");
@@ -53,17 +38,41 @@ const ServicesSelector = ({ selectedSources, setSelectedSources, sourcesError, s
       setSelectedSources(sources.map((s) => s.id));
       setSourcesError(null);
     }
-  };
+  }, [selectedSources, setSelectedSources, setSourcesError]);
 
   // Navigate from step 2 > 3 clicking next button. Error if nothing selected.
-  const handleNextStep2 = () => {
+  const handleNextStep2 = useCallback(() => {
     if (selectedSources.length === 0) {
       setSourcesError("Select at least one service.");
       return;
     }
     setSourcesError(null);
     setStep(3);
-  };
+  }, [selectedSources, setSourcesError, setStep]);
+
+  const streamingServices = useMemo(
+    () =>
+      sources.map((src) => {
+        const isChecked = selectedSources.includes(src.id);
+        return (
+          <label
+            key={src.id}
+            className={`relative flex flex-col items-center w-20 h-24 p-2 border rounded-lg cursor-pointer transition-colors
+                             ${isChecked ? "border-[#4F67FF] ring-2 ring-[#D8DAFE] bg-[#F0F2FF]" : "border-[#E1E3FF] bg-white hover:bg-[#F0F2FF]"}
+                             `}
+          >
+            <input type="checkbox" className="sr-only" checked={isChecked} onChange={() => handleSourceSelect(src.id)} />
+            <div className="relative w-14 h-14 flex-shrink-0 mb-1">
+              <Image src={src.logo_100px} alt={src.name} className="object-contain" unoptimized priority fill />
+            </div>
+            <span className="mt-auto text-xs font-semibold text-[#2B1A82] text-center truncate w-full" title={src.name}>
+              {src.name}
+            </span>
+          </label>
+        );
+      }),
+    [selectedSources, handleSourceSelect]
+  );
 
   return (
     <div className="flex flex-col">
@@ -85,4 +94,4 @@ const ServicesSelector = ({ selectedSources, setSelectedSources, sourcesError, s
   );
 };
 
-export default ServicesSelector;
+export default React.memo(ServicesSelector);

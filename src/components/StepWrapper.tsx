@@ -163,7 +163,7 @@ const StepWrapper = () => {
             step={step}
           />
           <TitleContainer omdbData={omdbData} />
-          {watchmodeTitleData && <ResultsContainer watchmodeTitleData={watchmodeTitleData} omdbData={omdbData} expandedTitleId={expandedTitleId} handleTitleRowClick={handleTitleRowClick} searchLoading={searchLoading} />}
+          {watchmodeTitleData && <ResultsContainer watchmodeTitleData={watchmodeTitleData} omdbData={omdbData} expandedTitleId={expandedTitleId} handleTitleRowClick={handleTitleRowClick} />}
           <ViewingOptionsContainer expandedTitleId={expandedTitleId} watchmodeSourceData={watchmodeSourceData} fetchError={fetchError} resultsLoading={resultsLoading} />
         </>
       )}
